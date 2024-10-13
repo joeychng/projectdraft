@@ -28,5 +28,9 @@ def dashboard():
         progress = 0
     return render_template("dashboard.html", balance=round(balance, 2), progress=round(progress, 2))
 
+@app.route("/goal",methods=["GET","POST"])
+def profile():
+    return(render_template("goal.html"))
+
 if __name__ == "__main__":
     app.run()
