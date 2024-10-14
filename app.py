@@ -32,5 +32,40 @@ def dashboard():
 def goal():
     return(render_template("goal.html"))
 
+@app.route("/goal_results",methods=["GET","POST"])
+def goal_results():
+    balance = request.form.get("balance")
+    retirementGoal = request.form.get("retirementGoal")
+    homePurchaseGoal = request.form.get("homePurchaseGoal")
+    targetYear1 = request.form.get("targetYear1")
+    targetYear2 = request.form.get("targetYear2")
+    try:
+        balance = float(balance)
+        retirementGoal = float(retirementGoal)
+        if retirementGoal > 0:
+            status1 = (balance / retirementGoal) * 100
+        else:
+            status1 = 0  # Avoid division by zero if goal is zero
+    except ValueError:
+        # Handle case where input is not a valid number
+        balance = 0
+        retirementGoal = 0
+        status1 = 0
+
+    try:
+        balance = float(balance)
+        homePurchaseGoal = float(homePurchaseGoal)
+        if homePurchaseGoal > 0:
+            status2 = (balance / homePurchaseGoal) * 100
+        else:
+            status2 = 0  # Avoid division by zero if goal is zero
+    except ValueError:
+        # Handle case where input is not a valid number
+        balance = 0
+        homePurchaseGoal = 0
+        status2 = 0
+
+    return(render_template("goal_results.html",retirementGoal=round(retirementGoal,2), homePurchaseGoal=round(homePurchaseGoal,2), targetYear1=targetYear1, targetYear2=targetYear2, status1=round(status1,2), status2=round(status2,2)))
+
 if __name__ == "__main__":
     app.run()

@@ -37,7 +37,10 @@
     <div class="container">
         <h2>Goal-Based Financial Planning</h2>
 
-    <form action="/" method="POST">
+    <form action="/goal_results" method="POST">
+        <label for="balance">Bank Account Balance:</label>
+        <input type="number" id="balance" name="balance" placeholder="Enter your balance" required>
+
         <label for="retirementGoal">Retirement Goal ($):</label>
         <input type="number" id="retirementGoal" name="retirementGoal" placeholder="Enter retirement goal" required>
 
