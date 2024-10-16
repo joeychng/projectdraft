@@ -1,8 +1,32 @@
 from flask import Flask, render_template, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
 import os
 
 app = Flask(__name__)
+
+# Configuration for SQLite database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize the database
+db = SQLAlchemy(app)
+
 api_token = os.getenv("API_TOKEN")
+
+# Define a User model to represent the users table
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False, unique=True)
+    phone = db.Column(db.String(20), nullable=False)
+
+    def to_dict(self):
+        return {"name": self.name, "email": self.email, "phone": self.phone}
+
+# Create the database and the tables (only run this once)
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 @app.route("/",methods=["GET","POST"])
 def index():
@@ -10,13 +34,28 @@ def index():
 
 @app.route("/profile",methods=["GET","POST"])
 def profile():
-    return render_template('profile.html', api_token=api_token)
+    user = User.query.get(1)
+    return render_template('profile.html', user=user, api_token=api_token)
 @app.route('/api/profile', methods=['PUT'])
 def update_profile():
     data = request.json
     name = data.get('name')
     email = data.get('email')
     phone = data.get('phone')
+   
+    # Fetch user (you can fetch based on session or a dynamic user)
+    user = User.query.get(1)  # Assuming we're updating the user with ID 1
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+     # Update the user's details
+    user.name = name
+    user.email = email
+    user.phone = phone
+
+    # Commit changes to the database
+    db.session.commit()
+
     return jsonify({'message': 'Profile updated successfully!'}), 200
 
 @app.route("/info",methods=["GET","POST"])
