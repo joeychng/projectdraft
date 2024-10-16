@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import os
 
 app = Flask(__name__)
-api = os.getenv("API_TOKEN")
+api_token = os.getenv("API_TOKEN")
 
 @app.route("/",methods=["GET","POST"])
 def index():
@@ -10,9 +10,9 @@ def index():
 
 @app.route("/userprofile",methods=["GET","POST"])
 def userprofile():
-    return render_template('user_profile.html', api=api)
-@app.put('/api/userprofile')
-def update_userprofile():
+    return render_template('user_profile.html', api_token=api_token)
+@app.route('/api/profile', methods=['PUT'])
+def update_profile():
     data = request.json
     name = data.get('name')
     email = data.get('email')

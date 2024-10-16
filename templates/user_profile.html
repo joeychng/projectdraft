@@ -144,14 +144,13 @@
             <button class="save-btn" onclick="saveProfile()" disabled>Save</button>
         </div>
 
-        <!-- Main button moved inside the profile container -->
         <form action="/" method="post">
             <input type="submit" value="Main" class="main-btn">
         </form>
     </div>
 
     <script>
-        const apiToken = "{{ api }}"; // Pass the API token from the backend
+        const apiToken = "{{ api_token }}"; // Access the API token from Flask
 
         const nameField = document.getElementById('name');
         const emailField = document.getElementById('email');
@@ -168,7 +167,6 @@
         }
 
         async function saveProfile() {
-            // Gather the updated profile data
             const updatedProfile = {
                 name: nameField.value,
                 email: emailField.value,
@@ -176,18 +174,16 @@
             };
 
             try {
-                // Send the data to the backend API with the API token in the headers
-                const response = await fetch('/api/userprofile', {
-                    method: 'PUT', // or 'POST' depending on your API
+                const response = await fetch('/api/profile', {
+                    method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${api}` // Add API token in the header
+                        'Authorization': `Bearer ${apiToken}` // Include the API token
                     },
                     body: JSON.stringify(updatedProfile)
                 });
 
                 if (response.ok) {
-                    // Handle success response
                     alert('Profile saved successfully!');
                     nameField.disabled = true;
                     emailField.disabled = true;
@@ -195,11 +191,9 @@
                     saveButton.disabled = true;
                     editButton.disabled = false;
                 } else {
-                    // Handle error response
                     alert('Error saving profile: ' + response.statusText);
                 }
             } catch (error) {
-                // Handle network error
                 alert('Network error: ' + error.message);
             }
         }
