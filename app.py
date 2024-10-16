@@ -8,6 +8,12 @@ app.secret_key = 'your_secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
+# Sample user data for demonstration (in real app, this would be stored in a database)
+sample_user = {
+    'name': 'Alice Lim',
+    'email': 'alicelim@gmail.com',
+    'password': '123456'
+}
 # Configuration for SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -71,6 +77,31 @@ def update_profile():
     db.session.commit()
 
     return jsonify({'message': 'Profile updated successfully!'}), 200
+
+@app.route('/profile2', methods=['GET', 'POST'])
+def profile2():
+    if request.method == 'POST':
+        # Get updated data from form
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+
+        # Store or update user data in session or database
+        session['name'] = name
+        session['email'] = email
+        if password:
+            session['password'] = password 
+
+    return redirect(url_for('profile2'))
+        
+    user = {
+        'name': session.get('name', ''),
+        'email': session.get('email', ''),
+    }
+
+    # If GET request, render the profile page with current user data
+    return render_template('profile2.html', user=user)
+
 
 @app.route("/info", methods=["GET", "POST"])
 def info():
