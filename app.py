@@ -1,10 +1,23 @@
-from flask import Flask,render_template,request
+from flask import Flask, render_template, jsonify, request
+import os
 
 app = Flask(__name__)
+api = os.getenv("API_TOKEN")
 
 @app.route("/",methods=["GET","POST"])
 def index():
     return(render_template("index.html"))
+
+@app.route("/userprofile",methods=["GET","POST"])
+def userprofile():
+    return render_template('user_profile.html', api=api)
+@app.put('/api/userprofile')
+def update_userprofile():
+    data = request.json
+    name = data.get('name')
+    email = data.get('email')
+    phone = data.get('phone')
+    return jsonify({'message': 'Profile updated successfully!'}), 200
 
 @app.route("/profile",methods=["GET","POST"])
 def profile():
