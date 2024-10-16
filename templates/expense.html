@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+        <form id="expenseForm" method="POST">
+            <label for="category">Expense Category:</label>
+            <input type="text" id="category" name="category" placeholder="E.g., Groceries, Rent" required>
+
+            <label for="amount">Amount ($):</label>
+            <input type="number" id="amount" name="amount" placeholder="Enter amount" step="0.01" required>
+
+            <button type="submit">Add Expense</button>
+        </form>
+        <canvas id="expenseChart" width="400" height="200"></canvas>
+    </div>
+</body>
+</html>
