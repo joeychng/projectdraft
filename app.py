@@ -43,7 +43,10 @@ def profile():
             user.name = name
             user.email = email
             user.phone = phone
-            db.session.commit()  # Commit changes to the database
+            try:
+                db.session.commit()  # Commit changes to the database
+            except Exception as e:
+                print(f"Error saving profile: {e}")  # Print error for debugging
 
     return render_template('profile.html', user=user, api_token=api_token)
 

@@ -126,18 +126,18 @@
 
         <div class="profile-field">
             <label for="name">Name:</label>
-            <input type="text" id="name" value="Teoh Teik Toe" disabled>
+            <input type="text" id="name" name="name" value="{{ user.name }}" disabled>
         </div>
-
+        
         <div class="profile-field">
             <label for="email">Email:</label>
-            <input type="email" id="email" value="ttkh@gmail.com" disabled>
+            <input type="email" id="email" name="email" value="{{ user.email }}" disabled>
         </div>
-
+        
         <div class="profile-field">
             <label for="phone">Phone:</label>
-            <input type="tel" id="phone" value="88887777" disabled>
-        </div>
+            <input type="tel" id="phone" name="phone" value="{{ user.phone }}" disabled>
+        </div>        
 
         <div class="buttons">
             <button class="edit-btn" onclick="enableEdit()">Edit</button>
@@ -168,35 +168,43 @@
 
         async function saveProfile() {
             const updatedProfile = {
-                name: nameField.value,
-                email: emailField.value,
-                phone: phoneField.value
-            };
+        name: nameField.value,
+        email: emailField.value,
+        phone: phoneField.value
+        };
 
-            try {
-                const response = await fetch('/api/profile', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiToken}` // Include the API token
-                    },
-                    body: JSON.stringify(updatedProfile)
-                });
+        // Enable the fields before submitting
+        nameField.disabled = false;
+        emailField.disabled = false;
+        phoneField.disabled = false;
 
-                if (response.ok) {
-                    alert('Profile saved successfully!');
-                    nameField.disabled = true;
-                    emailField.disabled = true;
-                    phoneField.disabled = true;
-                    saveButton.disabled = true;
-                    editButton.disabled = false;
-                } else {
-                    alert('Error saving profile: ' + response.statusText);
-                }
-            } catch (error) {
-                alert('Network error: ' + error.message);
+        // Create a form element to submit
+        const formData = new FormData();
+        formData.append('name', updatedProfile.name);
+        formData.append('email', updatedProfile.email);
+        formData.append('phone', updatedProfile.phone);
+
+        try {
+            const response = await fetch('/profile', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Profile saved successfully!');
+                nameField.disabled = true;
+                emailField.disabled = true;
+                phoneField.disabled = true;
+                saveButton.disabled = true;
+                editButton.disabled = false;
+            } else {
+                alert('Error saving profile: ' + response.statusText);
             }
+        } catch (error) {
+            alert('Network error: ' + error.message);
         }
+    }
+
     </script>
 
 </body>
