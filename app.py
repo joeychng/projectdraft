@@ -8,9 +8,9 @@ api_token = os.getenv("API_TOKEN")
 def index():
     return(render_template("index.html"))
 
-@app.route("/userprofile",methods=["GET","POST"])
-def userprofile():
-    return render_template('user_profile.html', api_token=api_token)
+@app.route("/profile",methods=["GET","POST"])
+def profile():
+    return render_template('profile.html', api_token=api_token)
 @app.route('/api/profile', methods=['PUT'])
 def update_profile():
     data = request.json
@@ -19,9 +19,9 @@ def update_profile():
     phone = data.get('phone')
     return jsonify({'message': 'Profile updated successfully!'}), 200
 
-@app.route("/profile",methods=["GET","POST"])
-def profile():
-    return(render_template("profile.html"))
+@app.route("/info",methods=["GET","POST"])
+def info():
+    return(render_template("info.html"))
 
 @app.route("/dashboard",methods=["GET","POST"])
 def dashboard():

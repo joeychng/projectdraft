@@ -6,53 +6,198 @@
     <title>User Profile</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-        input, textarea {
+        .profile-container {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            max-width: 600px; /* Increased the width */
+            transition: box-shadow 0.3s ease;
+            text-align: center; /* Center aligned for the form */
         }
-        input[type="submit"] {
+        .profile-container:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .profile-field {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .profile-field label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #555;
+        }
+        .profile-field input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #333;
+        }
+        .profile-field input:disabled {
+            background-color: #f4f4f4;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 12px;
+            width: 48%;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .save-btn {
             background-color: #4CAF50;
             color: white;
+        }
+        .save-btn:disabled {
+            background-color: #aaa;
+        }
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #1976D2;
+        }
+        .save-btn:hover {
+            background-color: #45A049;
+        }
+        .main-btn {
+            margin-top: 30px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #555;
+            color: white;
             border: none;
+            border-radius: 6px;
             cursor: pointer;
         }
-        input[type="submit"]:hover {
-            background-color: #45a049;
+        .main-btn:hover {
+            background-color: #333;
+        }
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 20px;
+            }
+            .profile-field input {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .buttons button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .profile-container {
+                width: 90%;
+            }
+            h2 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-<h2>User Profile: Financial Information</h2>
 
-<form action="/dashboard" method="POST">
-    <label for="balance">Bank Account Balance:</label>
-    <input type="number" id="balance" name="balance" placeholder="Enter your balance" required>
+    <div class="profile-container">
+        <h2>User Profile</h2>
 
-    <label for="goal">Financial Goal for the Year:</label>
-    <input type="number" id="goal" name="goal" placeholder="Enter your financial goal for the year" required>
-    
-    <input type="submit" value="Save Profile">
-</form>
-<form action="/" method="post">
-    <input type="submit" value="Main">
-</form>
-</div>
+        <div class="profile-field">
+            <label for="name">Name:</label>
+            <input type="text" id="name" value="Teoh Teik Toe" disabled>
+        </div>
+
+        <div class="profile-field">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="ttkh@gmail.com" disabled>
+        </div>
+
+        <div class="profile-field">
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" value="88887777" disabled>
+        </div>
+
+        <div class="buttons">
+            <button class="edit-btn" onclick="enableEdit()">Edit</button>
+            <button class="save-btn" onclick="saveProfile()" disabled>Save</button>
+        </div>
+
+        <form action="/" method="post">
+            <input type="submit" value="Main" class="main-btn">
+        </form>
+    </div>
+
+    <script>
+        const apiToken = "{{ api_token }}"; // Access the API token from Flask
+
+        const nameField = document.getElementById('name');
+        const emailField = document.getElementById('email');
+        const phoneField = document.getElementById('phone');
+        const editButton = document.querySelector('.edit-btn');
+        const saveButton = document.querySelector('.save-btn');
+
+        function enableEdit() {
+            nameField.disabled = false;
+            emailField.disabled = false;
+            phoneField.disabled = false;
+            saveButton.disabled = false;
+            editButton.disabled = true;
+        }
+
+        async function saveProfile() {
+            const updatedProfile = {
+                name: nameField.value,
+                email: emailField.value,
+                phone: phoneField.value
+            };
+
+            try {
+                const response = await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiToken}` 
+                    },
+                    body: JSON.stringify(updatedProfile)
+                });
+
+                if (response.ok) {
+                    alert('Profile saved successfully!');
+                    nameField.disabled = true;
+                    emailField.disabled = true;
+                    phoneField.disabled = true;
+                    saveButton.disabled = true;
+                    editButton.disabled = false;
+                } else {
+                    alert('Error saving profile: ' + response.statusText);
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
+    </script>
+
 </body>
 </html>
