@@ -8,12 +8,6 @@ app.secret_key = 'your_secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# Sample user data for demonstration (in real app, this would be stored in a database)
-sample_user = {
-    'name': 'Alice Lim',
-    'email': 'alicelim@gmail.com',
-    'password': '123456'
-}
 # Configuration for SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -29,14 +23,20 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
-    phone = db.Column(db.String(20), nullable=False)
+    phone = db.Column(db.String(20), nullable=True)
+    password = db.Column(db.String(100), nullable=False)
 
     def to_dict(self):
         return {"name": self.name, "email": self.email, "phone": self.phone}
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    return render_template("index.html")
+# Route to create a sample user Alice Lim
+@app.route('/create_user')
+def create_user():
+    if User.query.count() == 0:
+        alice = User(name='Alice Lim', email='alice@gmail.com', password='12345', phone = '97776554')
+        db.session.add(alice)
+        db.session.commit()
+        return "User Alice Lim created!"
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
@@ -78,30 +78,10 @@ def update_profile():
 
     return jsonify({'message': 'Profile updated successfully!'}), 200
 
-@app.route('/profile2', methods=['GET', 'POST'])
-def profile2():
-    if request.method == 'POST':
-        # Get updated data from form
-        name = request.form['name']
-        email = request.form['email']
-        password = request.form['password']
-
-        # Store or update user data in session or database
-        session['name'] = name
-        session['email'] = email
-        if password:
-            session['password'] = password 
-
-    return redirect(url_for('profile2'))
-        
-    user = {
-        'name': session.get('name', ''),
-        'email': session.get('email', ''),
-    }
-
-    # If GET request, render the profile page with current user data
-    return render_template('profile2.html', user=user)
-
+# Route to home (index) page
+@app.route("/", methods=["GET", "POST"])
+def index():
+    return render_template("index.html")
 
 @app.route("/info", methods=["GET", "POST"])
 def info():
@@ -185,6 +165,7 @@ def summary():
     expenses = session.get('expenses', {})
     total_expenses = sum(expenses.values())
     return render_template('summary.html', expenses=expenses, total_expenses=total_expenses)
+
 
 if __name__ == "__main__":
     with app.app_context():  # Ensure application context is active
