@@ -1,21 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Dashboard</title>
-</head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
 
+        h2 {
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            border: 2px solid #4a90e2; /* Blue border */
+            border-radius: 10px;
+            padding: 20px;
+            background-color: white; /* White background for the box */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff; /* Blue color */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 200px; /* Fixed width for buttons */
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 24px;
+            }
+
+            input[type="submit"] {
+                width: 100%; /* Full width on small screens */
+            }
+        }
+    </style>
+</head>
 <body>
     <h2>Welcome to your Financial Dashboard</h2>
 
-    <form action="/profile" method="post">
-        <input type="submit" value="User Profile">
-    </form>
-    <form action="/info" method="post">
-        <input type="submit" value="Financial Dashboard">
-    </form>
-    <form action="/goal" method="post">
-        <input type="submit" value="Goal-based Planning">
-    </form>
-    <form action="/expense" method="get">
-        <input type="submit" value="Expense Tracker">
-    </form>
+    <div class="button-container">
+        <form action="/profile" method="post">
+            <input type="submit" value="User Profile">
+        </form>
+        <form action="/expense" method="get">
+            <input type="submit" value="Expense Tracker">
+        </form>
+        <form action="/info" method="post">
+            <input type="submit" value="Financial Dashboard">
+        </form>
+        <form action="/goal" method="post">
+            <input type="submit" value="Goal-based Planning">
+        </form>
+    </div>
+
 </body>
 </html>

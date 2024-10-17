@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, session
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -8,80 +8,35 @@ app.secret_key = 'your_secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# Configuration for SQLite database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize the database
-db = SQLAlchemy(app)
+user = {
+    'name': 'Alice Lim',
+    'email': 'Alicelim@gmail.com',
+    'password': 'password123'
+}
 
-# Fetch API token from environment
-api_token = os.getenv("API_TOKEN")
-
-# Define a User model to represent the users table
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), nullable=False, unique=True)
-    phone = db.Column(db.String(20), nullable=True)
-    password = db.Column(db.String(100), nullable=False)
-
-    def to_dict(self):
-        return {"name": self.name, "email": self.email, "phone": self.phone}
-
-# Route to create a sample user Alice Lim
-@app.route('/create_user')
-def create_user():
-    if User.query.count() == 0:
-        alice = User(name='Alice Lim', email='alice@gmail.com', password='12345', phone = '97776554')
-        db.session.add(alice)
-        db.session.commit()
-        return "User Alice Lim created!"
-
-@app.route("/profile", methods=["GET", "POST"])
-def profile():
-    user = User.query.get(1)  # Ensure this user exists
-
-    if request.method == "POST":
-        # Handle form submission to update user details
-        name = request.form.get('name')
-        email = request.form.get('email')
-        phone = request.form.get('phone')
-
-        # Update the user's details
-        if user:
-            user.name = name
-            user.email = email
-            user.phone = phone
-            try:
-                db.session.commit()  # Commit changes to the database
-            except Exception as e:
-                print(f"Error saving profile: {e}")  # Print error for debugging
-
-    return render_template('profile.html', user=user, api_token=api_token)
-
-@app.route('/api/profile', methods=['PUT'])
-def update_profile():
-    data = request.json
-    name = data.get('name')
-    email = data.get('email')
-    phone = data.get('phone')
-
-    user = User.query.get(1)  # Assuming we're updating the user with ID 1
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    user.name = name
-    user.email = email
-    user.phone = phone
-    db.session.commit()
-
-    return jsonify({'message': 'Profile updated successfully!'}), 200
-
-# Route to home (index) page
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if request.method == 'POST':
+        new_name = request.form.get('name')
+        new_email = request.form.get('email')
+        new_password = request.form.get('password')
+
+        if new_name:
+            user['name'] = new_name
+        if new_email:
+            user['email'] = new_email
+        if new_password:
+            user['password'] = new_password
+        
+        flash('Profile updated successfully!', 'success')
+
+    return render_template('profile.html', user=user)
+
 
 @app.route("/info", methods=["GET", "POST"])
 def info():
@@ -137,9 +92,10 @@ def expense():
         # Get data from the form
         category = request.form.get('category')  # Safely get the category field
         amount = request.form.get('amount')  # Safely get the amount field
+        date = request.form.get('date')
 
-        if not category or not amount:
-            return "Category or amount missing!", 400
+        if not category or not amount or not date:
+            return "Category, amount, or date missing!", 400
 
         try:
             amount = float(amount)
@@ -149,25 +105,39 @@ def expense():
         # Initialize session if not already done
         if 'expenses' not in session:
             session['expenses'] = {}
+        
+        if date not in session['expenses']:
+            session['expenses'][date] = {}
 
         # Update the expenses in session
-        if category in session['expenses']:
-            session['expenses'][category] += amount
+        if category in session['expenses'][date]:
+            session['expenses'][date][category] += amount
         else:
-            session['expenses'][category] = amount
+            session['expenses'][date][category] = amount
 
         return redirect(url_for('summary'))
 
     return render_template('expense.html')
 
-@app.route('/summary', methods=['GET'])
+@app.route("/summary", methods=["GET", "POST"])
 def summary():
     expenses = session.get('expenses', {})
-    total_expenses = sum(expenses.values())
+    
+    # Initialize total expenses
+    total_expenses = 0
+    
+    # Check if expenses is a dictionary
+    if isinstance(expenses, dict):
+        for date, categories in expenses.items():
+            # Check if categories is a dictionary
+            if isinstance(categories, dict):
+                # Sum up only valid numeric amounts
+                total_expenses += sum(amount for amount in categories.values() if isinstance(amount, (int, float)))
+            else:
+                print(f"Warning: Expected a dict for categories but got {type(categories)} for date {date}")
+
     return render_template('summary.html', expenses=expenses, total_expenses=total_expenses)
 
 
 if __name__ == "__main__":
-    with app.app_context():  # Ensure application context is active
-        db.create_all()  # Ensure tables are created
     app.run(debug=True)  # Enable debug mode for development
