@@ -2,3 +2,4 @@ flask
 gunicorn
 Flask-SQLAlchemy
 flask_session
+google-generativeai

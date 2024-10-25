@@ -1,7 +1,12 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
+import google.generativeai as genai
 import os
+
+api = os.getenv("MAKERSUITE_API_TOKEN")
+genai.configure(api_key=api)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' 
@@ -62,29 +67,20 @@ def dashboard():
 def goal():
     return render_template("goal.html")
 
-@app.route("/goal_results", methods=["GET", "POST"])
-def goal_results():
+@app.route("/goal_advice",methods=["GET","POST"])
+def goal_advice():
     balance = request.form.get("balance", 0)
     retirementGoal = request.form.get("retirementGoal", 0)
-    homePurchaseGoal = request.form.get("homePurchaseGoal", 0)
     targetYear1 = request.form.get("targetYear1")
-    targetYear2 = request.form.get("targetYear2")
 
-    try:
-        balance = float(balance)
-        retirementGoal = float(retirementGoal)
-        status1 = (balance / retirementGoal) * 100 if retirementGoal > 0 else 0
-    except ValueError:
-        status1 = 0
+    q = (
+        f"I have a bank account balance of ${balance} and a retirement goal of ${retirementGoal}. "
+        f"I want to achieve this by the year {targetYear1}. Can you provide me with advice on how to reach this goal, "
+        f"including potential investment strategies and budgeting tips?"
+    )
 
-    try:
-        balance = float(balance)
-        homePurchaseGoal = float(homePurchaseGoal)
-        status2 = (balance / homePurchaseGoal) * 100 if homePurchaseGoal > 0 else 0
-    except ValueError:
-        status2 = 0
-
-    return render_template("goal_results.html", retirementGoal=round(retirementGoal, 2), homePurchaseGoal=round(homePurchaseGoal, 2), targetYear1=targetYear1, targetYear2=targetYear2, status1=round(status1, 2), status2=round(status2, 2))
+    r = model.generate_content(q)
+    return(render_template("goal_advice.html",r=r.text))
 
 @app.route("/expense", methods=["GET", "POST"])
 def expense():
