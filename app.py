@@ -42,27 +42,6 @@ def profile():
 
     return render_template('profile.html', user=user)
 
-
-@app.route("/info", methods=["GET", "POST"])
-def info():
-    return render_template("info.html")
-
-@app.route("/dashboard", methods=["GET", "POST"])
-def dashboard():
-    balance = request.form.get("balance", 0)  # Default to 0 if not provided
-    goal = request.form.get("goal", 0)  # Default to 0 if not provided
-    try:
-        balance = float(balance)
-        goal = float(goal)
-        if goal > 0:
-            progress = (balance / goal) * 100
-        else:
-            progress = 0  # Avoid division by zero
-    except ValueError:
-        progress = 0  # Handle invalid input
-
-    return render_template("dashboard.html", balance=round(balance, 2), progress=round(progress, 2))
-
 @app.route("/goal", methods=["GET", "POST"])
 def goal():
     return render_template("goal.html")
