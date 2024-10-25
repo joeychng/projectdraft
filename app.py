@@ -69,19 +69,25 @@ def goal():
 
 @app.route("/goal_advice",methods=["GET","POST"])
 def goal_advice():
-    balance = request.form.get("balance", 0)
-    retirementGoal = request.form.get("retirementGoal", 0)
-    targetYear1 = request.form.get("targetYear1")
+    balance = float(request.form.get("balance", 0))
+    income = float(request.form.get("income", 0))
+    expenses = float(request.form.get("expenses", 0))
+    retirementGoal = float(request.form.get("retirementGoal", 0))
+    targetYear = int(request.form.get("targetYear1", 0))
+    retirementAge = int(request.form.get("retirementAge", 0))
+    riskTolerance = request.form.get("riskTolerance")
 
+    # Generate a prompt for the AI based on user inputs
     q = (
-        f"I have a bank account balance of ${balance} and a retirement goal of ${retirementGoal}. "
-        f"I want to achieve this by the year {targetYear1}. Can you provide me with advice on how to reach this goal, "
-        f"including potential investment strategies and budgeting tips?"
+        f"Provide financial advice for a person with a bank account balance of ${balance}, "
+        f"a monthly income of ${income}, monthly expenses of ${expenses}, "
+        f"a retirement goal of ${retirementGoal} by the year {targetYear}, "
+        f"who wants to retire at age {retirementAge}, and has a {riskTolerance} risk tolerance."
     )
 
+    # Generate AI content based on the prompt
     r = model.generate_content(q)
-    formatted_r = r.text.replace("*", "").replace("\n", "<br>")
-    return(render_template("goal_advice.html",r=formatted_r))
+    return render_template("goal_advice.html", r=r.text)
 
 @app.route("/expense", methods=["GET", "POST"])
 def expense():
