@@ -80,7 +80,8 @@ def goal_advice():
     )
 
     r = model.generate_content(q)
-    return(render_template("goal_advice.html",r=r.text))
+    formatted_r = r.text.replace("*", "").replace("\n", "<br>")
+    return(render_template("goal_advice.html",r=formatted_r))
 
 @app.route("/expense", methods=["GET", "POST"])
 def expense():
